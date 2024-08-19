@@ -194,7 +194,7 @@ def start_sending_message():
                 final_file_paths = " ".join(files_name)
                 pyperclip.copy(final_file_paths)
                 pyautogui.hotkey('ctrl', 'v')
-                time.sleep(1)
+                time.sleep(2)
                 pyautogui.press('enter')
                 send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                 if send_btn:
@@ -202,46 +202,13 @@ def start_sending_message():
                     pyautogui.hotkey('ctrl', 'v')
                     time.sleep(1)
                     send_btn.click()
+                    time.sleep(2)
             else:
                 message_box = bot.crawler.find_element_by_xpath(XPATH)
                 if message_box:
                     pyperclip.copy(message_text)
                     pyautogui.hotkey('ctrl', 'v')
                     message_box.send_keys(Keys.RETURN)
-            # # adding attachments
-            # for file_path in uploaded_file_paths:
-            #     time.sleep(2)
-            #     attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
-            #     attachment_box.click()
-            #     time.sleep(2)
-
-            #     file_input = bot.crawler.find_element_by_xpath(FILE_INPUT_XPATH)
-            #     file_input.click()
-            #     time.sleep(1)
-
-            #     file_path = file_path.replace("/", "\\")
-            #     print(f"sending file {file_path}")
-            #     pyperclip.copy(file_path)
-            #     pyautogui.hotkey('ctrl', 'v')
-            #     pyautogui.press('enter')
-            #     time.sleep(1)
-            #     send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
-            #     send_btn.click()
-            #     print(f"{file_path} send")
-            #     time.sleep(3)
-            # print("file upload done")
-            # time.sleep(1)
-            
-            # print("typeing message")
-            # # Find the chat input box and write the message
-            # message_box = bot.crawler.find_element_by_xpath(XPATH)
-            # message_box.send_keys(message_text)
-
-            # # Send the message
-            # message_box.send_keys(Keys.RETURN)
-            # # Wait before sending the next message
-            # time.sleep(2)  # Adjust this as needed
-
             row = {
                 "name": name,
                 "number": str(number),
@@ -249,8 +216,7 @@ def start_sending_message():
                 "comment": ""
             }
             write_to_csv(csv_file_path, fieldnames, row)
-            print("task finished")
-
+    
         except Exception as e:
             print(f"exception: {e}")
             row = {
@@ -261,7 +227,7 @@ def start_sending_message():
             }
             write_to_csv(csv_file_path, fieldnames, row)
 
-    
+    print("task finished")
 
 
 def show_first_screen():
