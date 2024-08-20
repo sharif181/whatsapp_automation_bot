@@ -21,4 +21,4 @@ if __name__ == "__main__":
 
     if crawler.crawler.setup_done:
         time.sleep(20)
-        crawler.send_message("+8801741976078", "test message")
+        crawler.send_message("", "")
