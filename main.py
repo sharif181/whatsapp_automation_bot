@@ -229,12 +229,9 @@ def start_sending_message():
                     else:
                         raise Exception("text box not found")
                 except Exception as e:
-                    bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
-                    time.sleep(3)
-
+                    raise Exception("Input box not found")
             else:
-                bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
-                time.sleep(3)
+                raise Exception("New chat system not found") 
             is_user_not_found = bot.crawler.find_element_by_xpath(
                 xpath=XPATH_USER, 
                 exit_on_missing_element=False, 
