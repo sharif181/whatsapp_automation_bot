@@ -6,6 +6,7 @@ import time
 from tkinter import *
 from tkinter import ttk
 
+import pandas as pd
 import pyautogui
 import pyperclip
 from selenium.webdriver.common.keys import Keys
@@ -133,13 +134,26 @@ def initialize_and_start():
     time.sleep(10)
     # Add your logic here to initialize the bot and start sending messages
 
-def write_to_csv(csv_file_path, fieldnames, row):
-    # Open the existing CSV file in append mode
-    with open(csv_file_path, mode='a', newline='') as file:
-        # Create a writer object
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        string_row = {key: str(value) for key, value in row.items()}
-        writer.writerow(string_row)
+
+def write_to_excel(file_path, row):
+    fieldnames = ['name', 'number', 'status', 'comment']
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # Read the existing Excel file into a DataFrame
+        df = pd.read_excel(file_path, dtype=str)
+    else:
+        # Create a new DataFrame if the file does not exist
+        df = pd.DataFrame(columns=fieldnames)
+    
+    # Create a new DataFrame with the row to be appended
+    new_df = pd.DataFrame([row])
+    
+    # Append the new row to the existing DataFrame
+    df = pd.concat([df, new_df], ignore_index=True)
+    
+    # Write the updated DataFrame back to the Excel file
+    with pd.ExcelWriter(file_path, engine='openpyxl', mode='w') as writer:
+        df.to_excel(writer, index=False)
 
 def start_sending_message():
     global csv_data
@@ -151,15 +165,8 @@ def start_sending_message():
 
     csv_file_name = f"whatsapp_bot_status_{generate_random_name()}"
     csv_file_path = os.path.join(desktop_path, csv_file_name)
-    csv_file_path = f"{csv_file_path}.csv"
+    csv_file_path = f"{csv_file_path}.xlsx"
     
-    fieldnames = ['name', 'number', 'status', 'comment']
-    with open(csv_file_path, mode='w', newline='') as file:
-        # Create a writer object
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        # Write the column headers
-        writer.writeheader()
-
     print("Started sending messages.")
     for index, row in csv_data.iterrows():
         if (index+1) % 10 == 0:
@@ -215,7 +222,7 @@ def start_sending_message():
                 "status": "Success",
                 "comment": ""
             }
-            write_to_csv(csv_file_path, fieldnames, row)
+            write_to_excel(csv_file_path, row)
     
         except Exception as e:
             print(f"exception: {e}")
@@ -225,7 +232,7 @@ def start_sending_message():
                 "status": "Failed",
                 "comment": f"{e}"
             }
-            write_to_csv(csv_file_path, fieldnames, row)
+            write_to_excel(csv_file_path, row)
 
     print("task finished")
 
