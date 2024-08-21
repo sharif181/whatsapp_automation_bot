@@ -172,6 +172,7 @@ def start_sending_message():
     global message_text
     global uploaded_file_paths
 
+    time.sleep(1)
     # Minimize the Tkinter window
     root.iconify()
 
@@ -181,6 +182,7 @@ def start_sending_message():
         browser_window = gw.getWindowsWithTitle("WhatsApp")[0]  # Assuming the title has "WhatsApp"
         if browser_window:
             browser_window.activate()
+            time.sleep(2)
             browser_window.maximize()
     except Exception as e:
         print(f"Could not focus on the browser window: {e}")
@@ -205,6 +207,9 @@ def start_sending_message():
             SER_PH_CONT_XPATH = "//p[contains(@class, 'selectable-text') and contains(@class, 'copyable-text')]"
             SEND_XPATH = '//div[@aria-label="Send"]'
             FILE_INPUT_XPATH = '//span[text()="Document"]'
+            XPATH_USER = "//*[contains(text(), 'No results found for')]"
+            XPATH_CLEAN_NUMBER = '//button[@aria-label="Cancel search"]'
+            XPATH_BACK_BTN = '//span[@data-icon="back"]'
 
 
             new_cont_btn = bot.crawler.find_element_by_xpath(NEW_CONT_XPATH)
@@ -221,8 +226,6 @@ def start_sending_message():
                         pyperclip.copy(f"+88{number}")
                         pyautogui.hotkey('ctrl', 'v')
                         time.sleep(3)
-                        pyautogui.press("enter")
-                        time.sleep(2)
                     else:
                         raise Exception("text box not found")
                 except Exception as e:
@@ -232,51 +235,73 @@ def start_sending_message():
             else:
                 bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
                 time.sleep(3)
-            
-            if uploaded_file_paths:
-                attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
-                attachment_box.click()
-                time.sleep(2)
-                file_input = bot.crawler.find_element_by_xpath(FILE_INPUT_XPATH)
-                file_input.click()
+            is_user_not_found = bot.crawler.find_element_by_xpath(
+                xpath=XPATH_USER, 
+                exit_on_missing_element=False, 
+                wait_element_time=3
+            )
+            if is_user_not_found == False:
                 time.sleep(1)
-
-                files_name = []
-                for file_path in uploaded_file_paths:
-                    file_path = file_path.replace("/", "\\")
-                    file_path = f'"{file_path}"'
-                    files_name.append(file_path)
-
-                final_file_paths = " ".join(files_name)
-                pyperclip.copy(final_file_paths)
-                pyautogui.hotkey('ctrl', 'v')
+                pyautogui.press("enter")
                 time.sleep(2)
-                pyautogui.press('enter')
-                send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
-                if send_btn:
-                    if len(files_name) == 1:
-                        time.sleep(1)
-                        pyperclip.copy(message_text)
-                        pyautogui.hotkey('ctrl', 'v')
-                        time.sleep(1)
-                        send_btn.click()
-                        time.sleep(2)
-                    else:
-                        time.sleep(1)
-                        send_btn.click()
-                        time.sleep(3)
-                        send_message(XPATH, message_text)
+                if uploaded_file_paths:
+                    attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
+                    attachment_box.click()
+                    time.sleep(2)
+                    file_input = bot.crawler.find_element_by_xpath(FILE_INPUT_XPATH)
+                    file_input.click()
+                    time.sleep(1)
+
+                    files_name = []
+                    for file_path in uploaded_file_paths:
+                        file_path = file_path.replace("/", "\\")
+                        file_path = f'"{file_path}"'
+                        files_name.append(file_path)
+
+                    final_file_paths = " ".join(files_name)
+                    pyperclip.copy(final_file_paths)
+                    pyautogui.hotkey('ctrl', 'v')
+                    time.sleep(2)
+                    pyautogui.press('enter')
+                    send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
+                    if send_btn:
+                        if len(files_name) == 1:
+                            time.sleep(1)
+                            pyperclip.copy(message_text)
+                            pyautogui.hotkey('ctrl', 'v')
+                            time.sleep(1)
+                            send_btn.click()
+                            time.sleep(2)
+                        else:
+                            time.sleep(1)
+                            send_btn.click()
+                            time.sleep(3)
+                            send_message(XPATH, message_text)
+                else:
+                    time.sleep(2)
+                    send_message(XPATH, message_text)
+                row = {
+                    "name": name,
+                    "number": str(number),
+                    "status": "Success",
+                    "comment": ""
+                }
+                write_to_excel(csv_file_path, row)
             else:
-                time.sleep(2)
-                send_message(XPATH, message_text)
-            row = {
-                "name": name,
-                "number": str(number),
-                "status": "Success",
-                "comment": ""
-            }
-            write_to_excel(csv_file_path, row)
-    
+                time.sleep(1)
+                cancel_btn = bot.crawler.find_element_by_xpath(XPATH_CLEAN_NUMBER)
+                cancel_btn.click()
+                time.sleep(1)
+                back_btn = bot.crawler.find_element_by_xpath(XPATH_BACK_BTN)
+                back_btn.click()
+                time.sleep(1)
+                row = {
+                    "name": name,
+                    "number": str(number),
+                    "status": "Failed",
+                    "comment": "This number doesn't have whatsapp account"
+                }
+                write_to_excel(csv_file_path, row)
         except Exception as e:
             row = {
                 "name": name,
@@ -354,7 +379,7 @@ def create_first_screen():
     root.grid_columnconfigure(2, weight=1)
 
 root = Tk()
-root.title("WhatsApp bot")
+root.title("bot")
 root.config(bg="#f0f0f0")  # Light gray background for a modern look
 
 # Apply a consistent style
