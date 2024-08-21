@@ -7,7 +7,7 @@ def handle_csv_upload():
     global data
     file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("CSV files", "*.csv")])
     if file_path:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, dtype=str)
         return df
 
 # Function to handle attachment upload
