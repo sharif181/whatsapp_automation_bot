@@ -8,6 +8,7 @@ from tkinter import ttk
 
 import pandas as pd
 import pyautogui
+import pygetwindow as gw
 import pyperclip
 from selenium.webdriver.common.keys import Keys
 
@@ -83,7 +84,6 @@ def check_button_state():
 def on_action_button_click():
     global message_text
     message_text = message_input.get("1.0", "end-1c").strip()
-    print("Action button clicked!")
     show_second_screen()
 
 def show_second_screen():
@@ -128,7 +128,6 @@ def display_dataframe_on_second_screen(df, frame):
 
 def initialize_and_start():
     global bot
-    print("Bot initialized")
     bot = Crawler("https://web.whatsapp.com/")
     bot.initialize_whatsapp()
     time.sleep(10)
@@ -155,11 +154,36 @@ def write_to_excel(file_path, row):
     with pd.ExcelWriter(file_path, engine='openpyxl', mode='w') as writer:
         df.to_excel(writer, index=False)
 
+
+def send_message(XPATH, message_text):
+    message_box = bot.crawler.find_element_by_xpath(XPATH)
+    if message_box:
+        message_box.click()
+        # print(f"typing {message_text}")
+        pyperclip.copy(message_text)
+        pyautogui.hotkey('ctrl', 'v')
+        message_box.send_keys(Keys.RETURN)
+        time.sleep(2)
+
+
 def start_sending_message():
     global csv_data
     global bot
     global message_text
     global uploaded_file_paths
+
+    # Minimize the Tkinter window
+    root.iconify()
+
+    time.sleep(3)
+    # Attempt to focus on the browser window
+    try:
+        browser_window = gw.getWindowsWithTitle("WhatsApp")[0]  # Assuming the title has "WhatsApp"
+        if browser_window:
+            browser_window.activate()
+            browser_window.maximize()
+    except Exception as e:
+        print(f"Could not focus on the browser window: {e}")
 
     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
 
@@ -167,7 +191,6 @@ def start_sending_message():
     csv_file_path = os.path.join(desktop_path, csv_file_name)
     csv_file_path = f"{csv_file_path}.xlsx"
     
-    print("Started sending messages.")
     for index, row in csv_data.iterrows():
         if (index+1) % 10 == 0:
             time.sleep(3)
@@ -178,11 +201,37 @@ def start_sending_message():
         try:
             XPATH = '//div[@aria-placeholder="Type a message"]'
             ATTACH_XPATH = '//div[@aria-label="Attach"]'
+            NEW_CONT_XPATH = '//div[@aria-label="New chat"]'
+            SER_PH_CONT_XPATH = "//p[contains(@class, 'selectable-text') and contains(@class, 'copyable-text')]"
             SEND_XPATH = '//div[@aria-label="Send"]'
             FILE_INPUT_XPATH = '//span[text()="Document"]'
 
-            bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
-            time.sleep(3)
+
+            new_cont_btn = bot.crawler.find_element_by_xpath(NEW_CONT_XPATH)
+            if new_cont_btn:
+                new_cont_btn.click()
+                time.sleep(3)
+                bot.crawler.driver.switch_to.window(bot.crawler.driver.current_window_handle)
+                try:
+                    time.sleep(3)
+                    ser_ph_cont_box = bot.crawler.find_element_by_xpath(SER_PH_CONT_XPATH)
+                    if ser_ph_cont_box.is_enabled():
+                        ser_ph_cont_box.click()
+                        time.sleep(3)
+                        pyperclip.copy(f"+88{number}")
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(3)
+                        pyautogui.press("enter")
+                        time.sleep(2)
+                    else:
+                        raise Exception("text box not found")
+                except Exception as e:
+                    bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
+                    time.sleep(3)
+
+            else:
+                bot.crawler.go_to_page(f'https://web.whatsapp.com/send?phone={number}', True, XPATH)
+                time.sleep(3)
             
             if uploaded_file_paths:
                 attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
@@ -205,17 +254,21 @@ def start_sending_message():
                 pyautogui.press('enter')
                 send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                 if send_btn:
-                    pyperclip.copy(message_text)
-                    pyautogui.hotkey('ctrl', 'v')
-                    time.sleep(1)
-                    send_btn.click()
-                    time.sleep(2)
+                    if len(files_name) == 1:
+                        time.sleep(1)
+                        pyperclip.copy(message_text)
+                        pyautogui.hotkey('ctrl', 'v')
+                        time.sleep(1)
+                        send_btn.click()
+                        time.sleep(2)
+                    else:
+                        time.sleep(1)
+                        send_btn.click()
+                        time.sleep(3)
+                        send_message(XPATH, message_text)
             else:
-                message_box = bot.crawler.find_element_by_xpath(XPATH)
-                if message_box:
-                    pyperclip.copy(message_text)
-                    pyautogui.hotkey('ctrl', 'v')
-                    message_box.send_keys(Keys.RETURN)
+                time.sleep(2)
+                send_message(XPATH, message_text)
             row = {
                 "name": name,
                 "number": str(number),
@@ -225,7 +278,6 @@ def start_sending_message():
             write_to_excel(csv_file_path, row)
     
         except Exception as e:
-            print(f"exception: {e}")
             row = {
                 "name": name,
                 "number": str(number),
@@ -233,8 +285,6 @@ def start_sending_message():
                 "comment": f"{e}"
             }
             write_to_excel(csv_file_path, row)
-
-    print("task finished")
 
 
 def show_first_screen():

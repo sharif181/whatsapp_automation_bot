@@ -62,7 +62,7 @@ class Scraper:
 		service = Service(executable_path=chrome_driver_path)
 		self.driver = webdriver.Chrome(service=service, options = self.driver_options)
 		self.driver.get(self.url)
-		self.driver.maximize_window()
+		# self.driver.maximize_window()
 		self.setup_done = True
 
 
