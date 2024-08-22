@@ -207,6 +207,7 @@ def start_sending_message():
             SER_PH_CONT_XPATH = "//p[contains(@class, 'selectable-text') and contains(@class, 'copyable-text')]"
             SEND_XPATH = '//div[@aria-label="Send"]'
             FILE_INPUT_XPATH = '//span[text()="Document"]'
+            FILE_IMG_XPATH = '//span[text()="Photos & videos"]'
             XPATH_USER = "//*[contains(text(), 'No results found for')]"
             XPATH_CLEAN_NUMBER = '//button[@aria-label="Cancel search"]'
             XPATH_BACK_BTN = '//span[@data-icon="back"]'
@@ -247,15 +248,20 @@ def start_sending_message():
                     attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
                     attachment_box.click()
                     time.sleep(2)
-                    file_input = bot.crawler.find_element_by_xpath(FILE_INPUT_XPATH)
-                    file_input.click()
-                    time.sleep(1)
 
                     files_name = []
                     for file_path in uploaded_file_paths:
                         file_path = file_path.replace("/", "\\")
                         file_path = f'"{file_path}"'
                         files_name.append(file_path)
+                    if files_name[0]:
+                        file_img_input = bot.crawler.find_element_by_xpath(FILE_IMG_XPATH)
+                        file_img_input.click()
+                        time.sleep(1)
+                    else:
+                        file_input = bot.crawler.find_element_by_xpath(FILE_INPUT_XPATH)
+                        file_input.click()
+                        time.sleep(1)
 
                     final_file_paths = " ".join(files_name)
                     pyperclip.copy(final_file_paths)
