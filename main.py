@@ -223,7 +223,9 @@ def start_sending_message():
                     if ser_ph_cont_box.is_enabled():
                         ser_ph_cont_box.click()
                         time.sleep(3)
-                        pyperclip.copy(f"+88{number}")
+                        if not str(number).startswith("+"):
+                            number = f"+88{number}"
+                        pyperclip.copy(f"{number}")
                         pyautogui.hotkey('ctrl', 'v')
                         time.sleep(3)
                     else:
@@ -330,7 +332,7 @@ def create_first_screen():
     dataviewer.grid_columnconfigure(0, weight=1)
 
     # Create label above the dataviewer
-    Button(left_frame, text="+ Upload CSV", command=upload_and_display_csv, bg="#007acc", fg="white", relief="flat").grid(row=1, column=0, padx=5, pady=10)
+    Button(left_frame, text="+ Upload CSV or Excel", command=upload_and_display_csv, bg="#007acc", fg="white", relief="flat").grid(row=1, column=0, padx=5, pady=10)
 
     # middle box
     middle_frame = Frame(root, width=400, height=400, bg="#ffffff", relief=SOLID, bd=1)
@@ -353,7 +355,7 @@ def create_first_screen():
 
     # Add attachment upload button
     global uploaded_files_label
-    attachment_button = Button(right_frame, text="Upload Attachments", command=handle_attachment, bg="#007acc", fg="white", relief="flat")
+    attachment_button = Button(right_frame, text="+ Upload Attachments", command=handle_attachment, bg="#007acc", fg="white", relief="flat")
     attachment_button.pack(pady=10)
 
     # Label to display uploaded file names
