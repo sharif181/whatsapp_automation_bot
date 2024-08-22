@@ -215,19 +215,19 @@ def start_sending_message():
             new_cont_btn = bot.crawler.find_element_by_xpath(NEW_CONT_XPATH)
             if new_cont_btn:
                 new_cont_btn.click()
-                time.sleep(3)
+                time.sleep(2)
                 bot.crawler.driver.switch_to.window(bot.crawler.driver.current_window_handle)
                 try:
-                    time.sleep(3)
+                    time.sleep(1)
                     ser_ph_cont_box = bot.crawler.find_element_by_xpath(SER_PH_CONT_XPATH)
                     if ser_ph_cont_box.is_enabled():
                         ser_ph_cont_box.click()
-                        time.sleep(3)
+                        time.sleep(1)
                         if not str(number).startswith("+"):
                             number = f"+88{number}"
                         pyperclip.copy(f"{number}")
                         pyautogui.hotkey('ctrl', 'v')
-                        time.sleep(3)
+                        time.sleep(2)
                     else:
                         raise Exception("text box not found")
                 except Exception as e:
@@ -260,7 +260,7 @@ def start_sending_message():
                     final_file_paths = " ".join(files_name)
                     pyperclip.copy(final_file_paths)
                     pyautogui.hotkey('ctrl', 'v')
-                    time.sleep(2)
+                    time.sleep(4)
                     pyautogui.press('enter')
                     send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                     if send_btn:
