@@ -260,7 +260,7 @@ def start_sending_message():
                     final_file_paths = " ".join(files_name)
                     pyperclip.copy(final_file_paths)
                     pyautogui.hotkey('ctrl', 'v')
-                    time.sleep(4)
+                    time.sleep(2)
                     pyautogui.press('enter')
                     send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                     if send_btn:
