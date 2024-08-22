@@ -197,8 +197,11 @@ def start_sending_message():
         if (index+1) % 10 == 0:
             time.sleep(3)
         
-        name = row["name"]
-        number = row["number"]
+        # Convert the column names to lowercase for case-insensitive access
+        row = row.rename(str.lower)
+
+        name = row["name"].strip()
+        number = row["number"].strip()
         
         try:
             XPATH = '//div[@aria-placeholder="Type a message"]'
