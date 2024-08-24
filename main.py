@@ -42,6 +42,15 @@ def upload_and_display_csv():
 
 # Function to display the DataFrame in the Treeview
 def display_dataframe(df):
+    # Define the columns to display
+    columns_to_display = ["name", "number"]
+
+    # Convert the column names in the DataFrame to lowercase for case-insensitive matching
+    df.columns = df.columns.str.lower()
+
+    # Filter the DataFrame to include only the specified columns
+    df_filtered = df[columns_to_display]
+
     # Clear any existing data in the Treeview
     for widget in dataviewer.winfo_children():
         widget.destroy()
@@ -51,16 +60,16 @@ def display_dataframe(df):
     tree.grid(row=0, column=0, sticky='nsew')
 
     # Define columns
-    tree["columns"] = list(df.columns)
+    tree["columns"] = list(df_filtered.columns)
     tree["show"] = "headings"
 
     # Set up column headings
-    for col in df.columns:
+    for col in df_filtered.columns:
         tree.heading(col, text=col)
         tree.column(col, anchor="center")
 
     # Add data to the Treeview
-    for _, row in df.iterrows():
+    for _, row in df_filtered.iterrows():
         tree.insert("", "end", values=list(row))
 
     # Enable vertical scrollbar
