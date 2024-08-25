@@ -93,6 +93,9 @@ def check_button_state():
 def on_action_button_click():
     global message_text
     message_text = message_input.get("1.0", "end-1c").strip()
+    message_text = f"""
+        {message_text}
+        """
     show_second_screen()
 
 def show_second_screen():
@@ -278,7 +281,7 @@ def start_sending_message():
                     pyautogui.press('enter')
                     send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                     if send_btn:
-                        if len(files_name) == 1:
+                        if len(files_name) == 1 and len(message_text) < 1020:
                             time.sleep(1)
                             pyperclip.copy(message_text)
                             pyautogui.hotkey('ctrl', 'v')
@@ -326,6 +329,13 @@ def start_sending_message():
 
 
 def show_first_screen():
+    global uploaded_file_paths
+    global csv_data
+    global message_text
+
+    uploaded_file_paths = []
+    csv_data = None
+    message_text = ""
     # Destroy all widgets from the root window
     for widget in root.winfo_children():
         widget.destroy()
