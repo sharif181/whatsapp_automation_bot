@@ -22,6 +22,11 @@ message_text = ""
 bot = None
 
 
+def sleep_rand_sec(range_=3):
+    sleep_time = random.randint(1, range_)
+    time.sleep(sleep_time)
+
+
 def generate_random_name(length=5):
     return ''.join(random.choices(string.ascii_uppercase, k=length))
 
@@ -175,7 +180,7 @@ def send_message(XPATH, message_text):
         pyperclip.copy(message_text)
         pyautogui.hotkey('ctrl', 'v')
         message_box.send_keys(Keys.RETURN)
-        time.sleep(2)
+        sleep_rand_sec(4)
 
 
 def start_sending_message():
@@ -206,8 +211,8 @@ def start_sending_message():
     csv_file_path = f"{csv_file_path}.xlsx"
     
     for index, row in csv_data.iterrows():
-        if (index+1) % 10 == 0:
-            time.sleep(3)
+        if (index+1) % 20 == 0:
+            sleep_rand_sec(8)
         
         # Convert the column names to lowercase for case-insensitive access
         row = row.rename(str.lower)
@@ -231,19 +236,19 @@ def start_sending_message():
             new_cont_btn = bot.crawler.find_element_by_xpath(NEW_CONT_XPATH)
             if new_cont_btn:
                 new_cont_btn.click()
-                time.sleep(2)
+                sleep_rand_sec(2)
                 bot.crawler.driver.switch_to.window(bot.crawler.driver.current_window_handle)
                 try:
-                    time.sleep(1)
+                    sleep_rand_sec(3)
                     ser_ph_cont_box = bot.crawler.find_element_by_xpath(SER_PH_CONT_XPATH)
                     if ser_ph_cont_box.is_enabled():
                         ser_ph_cont_box.click()
-                        time.sleep(1)
+                        sleep_rand_sec(2)
                         if not str(number).startswith("+"):
                             number = f"+88{number}"
                         pyperclip.copy(f"{number}")
                         pyautogui.hotkey('ctrl', 'v')
-                        time.sleep(2)
+                        sleep_rand_sec(5)
                     else:
                         raise Exception("text box not found")
                 except Exception as e:
@@ -256,13 +261,13 @@ def start_sending_message():
                 wait_element_time=3
             )
             if is_user_not_found == False:
-                time.sleep(1)
+                sleep_rand_sec(2)
                 pyautogui.press("enter")
-                time.sleep(2)
+                sleep_rand_sec(2)
                 if uploaded_file_paths:
                     attachment_box = bot.crawler.find_element_by_xpath(ATTACH_XPATH)
                     attachment_box.click()
-                    time.sleep(2)
+                    sleep_rand_sec(3)
 
                     files_name = []
                     for file_path in uploaded_file_paths:
@@ -272,29 +277,29 @@ def start_sending_message():
                     
                     file_img_input = bot.crawler.find_element_by_xpath(FILE_IMG_XPATH)
                     file_img_input.click()
-                    time.sleep(1)
+                    sleep_rand_sec(2)
 
                     final_file_paths = " ".join(files_name)
                     pyperclip.copy(final_file_paths)
                     pyautogui.hotkey('ctrl', 'v')
-                    time.sleep(2)
+                    sleep_rand_sec(3)
                     pyautogui.press('enter')
                     send_btn = bot.crawler.find_element_by_xpath(SEND_XPATH)
                     if send_btn:
                         if len(files_name) == 1 and len(message_text) < 1020:
-                            time.sleep(1)
+                            sleep_rand_sec(2)
                             pyperclip.copy(message_text)
                             pyautogui.hotkey('ctrl', 'v')
-                            time.sleep(1)
+                            sleep_rand_sec(2)
                             send_btn.click()
-                            time.sleep(2)
+                            sleep_rand_sec(4)
                         else:
-                            time.sleep(1)
+                            sleep_rand_sec(2)
                             send_btn.click()
-                            time.sleep(3)
+                            sleep_rand_sec(3)
                             send_message(XPATH, message_text)
                 else:
-                    time.sleep(2)
+                    sleep_rand_sec(3)
                     send_message(XPATH, message_text)
                 row = {
                     "name": name,
@@ -304,13 +309,13 @@ def start_sending_message():
                 }
                 write_to_excel(csv_file_path, row)
             else:
-                time.sleep(1)
+                sleep_rand_sec(2)
                 cancel_btn = bot.crawler.find_element_by_xpath(XPATH_CLEAN_NUMBER)
                 cancel_btn.click()
-                time.sleep(1)
+                sleep_rand_sec(3)
                 back_btn = bot.crawler.find_element_by_xpath(XPATH_BACK_BTN)
                 back_btn.click()
-                time.sleep(1)
+                sleep_rand_sec(4)
                 row = {
                     "name": name,
                     "number": str(number),
