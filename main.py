@@ -49,12 +49,15 @@ def upload_and_display_csv():
 def display_dataframe(df):
     # Define the columns to display
     columns_to_display = ["name", "number"]
-
+    columns_to_display = [col.strip().lower() for col in columns_to_display]
     # Convert the column names in the DataFrame to lowercase for case-insensitive matching
-    df.columns = df.columns.str.lower()
+    df.columns = df.columns.str.strip().str.lower()
+
+    # Filter the DataFrame to include only the specified columns that are present
+    columns_present = df.columns.intersection(columns_to_display)
 
     # Filter the DataFrame to include only the specified columns
-    df_filtered = df[columns_to_display]
+    df_filtered = df[columns_present]
 
     # Clear any existing data in the Treeview
     for widget in dataviewer.winfo_children():
