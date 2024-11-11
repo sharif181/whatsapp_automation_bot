@@ -58,7 +58,7 @@ class Scraper:
 
 	# Setup chrome driver with predefined options
 	def setup_driver(self):
-		chrome_driver_path = ChromeDriverManager(driver_version='127.0.6533.119').install()
+		chrome_driver_path = ChromeDriverManager().install()
 		service = Service(executable_path=chrome_driver_path)
 		self.driver = webdriver.Chrome(service=service, options = self.driver_options)
 		self.driver.get(self.url)
